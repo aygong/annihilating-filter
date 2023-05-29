@@ -1,7 +1,8 @@
 clc, clear
+close all
 
 % Set the data mode: 'clean' or 'noisy'
-data_mode = 'clean';
+data_mode = 'noisy';
 % Set the filter type: 'basic' or 'improved'
 filter_type = 'improved';
 

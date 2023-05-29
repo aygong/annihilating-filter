@@ -26,8 +26,8 @@ rhs_4 = [zeros(2*N+1, 1); 1];
 rhs_5 = [Gha; zeros(N-K, 1)];
 
 % Set the iteration parameters
-max_initialize = 10;
-max_iteration = 100;
+max_initialize = 15;
+max_iteration = 50;
 early_stop = true;
 min_error = Inf;
 

@@ -1,11 +1,12 @@
 clc, clear
+close all
 
 % Set the data mode: 'clean' or 'noisy'
-data_mode = 'clean';
+data_mode = 'noisy';
 % Set the signal-to-noise ratio (dB)
 SNR = 20;
 % Set the filter type: 'basic' or 'improved'
-filter_type = 'basic';
+filter_type = 'improved';
 
 
 %%%%%%%%%%%%%%%%%%%%% Section: Data %%%%%%%%%%%%%%%%%%%%%
