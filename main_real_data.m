@@ -1,7 +1,7 @@
 clc, clear
 
 % Set the data mode: 'clean' or 'noisy'
-data_mode = 'noisy';
+data_mode = 'clean';
 % Set the filter type: 'basic' or 'improved'
 filter_type = 'improved';
 
@@ -36,7 +36,7 @@ X = fftshift(fft(x));
 freq = -fs/2:fs/M:fs/2-fs/M;
 
 % Create a plot of the DFT
-figure('Name','The DFT')
+figure('Name', 'The DFT')
 
 h = plot(freq, abs(X), 'b-', 'Linewidth', 1); 
 xlim([0 500]);
@@ -55,7 +55,7 @@ set(gcf, 'position', [400, 400, 700, 350])
 % Set the number of spectral lines
 K = 24;
 % Set the number of measurements
-N = 2 * K + 200;
+N = 2 * K + 100;
 
 switch filter_type
     case 'basic'
@@ -74,18 +74,25 @@ end
 zeroes = roots(coefficients);
 % Compute the frequencies
 angles = angle(zeroes);
-frequencies = sort(angles / (2 * pi) * fs);
+Fs = sort(angles / (2 * pi) * fs);
+
+% Compute the amplitudes
+lhs = zeros(N, length(Fs));
+for i = 1:length(Fs)
+    lhs(:, i) = sin(2 * pi * Fs(i) * (0:N-1) * (1 / fs));
+end
+As = lsqr(lhs, x(1:N));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%% Section: Figure %%%%%%%%%%%%%%%%%%%%%
 % Create a plot of the results
-figure('Name','The results')
+figure('Name', 'The results')
 
 h1 = plot(freq, abs(X), 'b-', 'Linewidth', 1); hold on
-for i = 1:length(frequencies)
-    fprintf("|> f%d = %.2f Hz\n", i, frequencies(i));
-    h2 = plot([frequencies(i) frequencies(i)], [0 max(abs(X))/3], 'r-', 'Linewidth', 3);
+for i = 1:length(Fs)
+    fprintf("|> f%d = %.2f Hz\n", i, Fs(i));
+    h2 = plot([Fs(i) Fs(i)], [0 max(abs(X))/3], 'r-', 'Linewidth', 3);
 end
 
 axis([freq(1) freq(end)+1 0 1e4])

@@ -1,11 +1,11 @@
 clc, clear
 
 % Set the data mode: 'clean' or 'noisy'
-data_mode = 'noisy';
+data_mode = 'clean';
 % Set the signal-to-noise ratio (dB)
 SNR = 20;
 % Set the filter type: 'basic' or 'improved'
-filter_type = 'improved';
+filter_type = 'basic';
 
 
 %%%%%%%%%%%%%%%%%%%%% Section: Data %%%%%%%%%%%%%%%%%%%%%
@@ -19,20 +19,20 @@ dt = 1 / fs;
 time = (0:M-1)' * dt;
 
 % Create the synthetic data
-frequencies = [375, 750, 1500];
-amplitudes = [10, 7, 5];
+synthetic_Fs = [375, 750, 1500];
+synthetic_As = [10, 7, 5];
 x = zeros(length(time), 1);
-for i = 1:length(frequencies)
-    x = x + amplitudes(i) * sin(2 * pi * frequencies(i) * time);
+for i = 1:length(synthetic_Fs)
+    x = x + synthetic_As(i) * sin(2 * pi * synthetic_Fs(i) * time);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%% Section: Filter %%%%%%%%%%%%%%%%%%%%%
 % Set the number of spectral lines
-K = length(frequencies) * 2;
+K = length(synthetic_Fs) * 2;
 % Set the number of measurements
-N = 2 * K + 10;
+N = 2 * K + 1;
 
 switch data_mode
     case 'clean'
@@ -72,7 +72,14 @@ end
 zeroes = roots(coefficients);
 % Compute the frequencies
 angles = angle(zeroes);
-frequencies = sort(angles / (2 * pi) * fs);
+Fs = sort(angles / (2 * pi) * fs);
+
+% Compute the amplitudes
+lhs = zeros(N, length(Fs));
+for i = 1:length(Fs)
+    lhs(:, i) = sin(2 * pi * Fs(i) * (0:N-1) * (1 / fs));
+end
+As = lsqr(lhs, x(1:N));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -84,9 +91,9 @@ freq = -fs/2:fs/M:fs/2-fs/M;
 
 % Create a plot of the results
 h1 = plot(freq, abs(X), 'b-', 'Linewidth', 1); hold on
-for i = 1:length(frequencies)
-    fprintf("|> f%d = %.2f Hz\n", i, frequencies(i));
-    h2 = plot([frequencies(i) frequencies(i)], [0 max(abs(X))/3], 'r-', 'Linewidth', 3);
+for i = 1:length(Fs)
+    fprintf("|> f%d = %.2f Hz\n", i, Fs(i));
+    h2 = plot([Fs(i) Fs(i)], [0 max(abs(X))/3], 'r-', 'Linewidth', 3);
 end
 
 axis([freq(1) freq(end)+1 0 3e4])
